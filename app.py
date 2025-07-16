@@ -418,9 +418,9 @@ def data_calculation(j_data):
     return t_prod, per, perf_chart, dur_chart, cycles_chart, target_chart, avr_chart
 
 
-# @app.route("/")
-# def index():
-#     return render_template('index.html')
+@app.route("/")
+def index():
+    return render_template('index.html')
 
 # @app.route("/api/get_data", methods=["GET"])
 # def get_data():
@@ -653,7 +653,7 @@ def processed_data(needed_data):
         }
     
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/dash", methods=["GET", "POST"])
 def dash():
     calculated_data = processed_data(needed_data="station")
     return render_template('dash.html', calculated_data=calculated_data)
