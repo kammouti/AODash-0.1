@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>AO-DASH - Company Lines</title>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+        <link href= "{{ url_for('static' , filename = 'styles.css') }}" rel='stylesheet' >
+        
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        
+
+
+    
+    
+    </head>
+    <body class="sb-nav-fixed">
+        {% include 'navbar.html'%}
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                {%include 'sidebar.html'%}
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                    
+                        <div class="row">
+                            <form class="d-flex ms-auto" action="/set_line_data" method="POST">
+
+                                <div class="col-xl-5 col-md-6 mb-2 mt-4 me-2">
+                                    <div class="card shadow py-1">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-m font-weight-bold text-secondary text-end mb-1">
+                                                        Selected date : {{ session['date'] }}</div>
+                                                        <input type="date" class="form-control me-2" name="selected_date" value="{{ session['date'] }}" required>
+                                                </div>
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-5 col-md-6 mb-2 mt-4 me-2">
+                                    <div class="card shadow py-1">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-m font-weight-bold text-secondary text-end mb-1">
+                                                        Select a shift:</div>
+                                                        <select class="form-select me-2" name="selected_shift" required>
+                                                            <option value="" {{'selected' if not calculated_data.shift_in_session else '' }}>Select Shift</option>
+                                                            <option value="Morning" {{'selected' if calculated_data.shift_in_session['M'] else '' }}>Morning</option>
+                                                            <option value="Afternoon" {{'selected' if calculated_data.shift_in_session['A'] else '' }}>Afternoon</option>
+                                                            <option value="Night" {{'selected' if calculated_data.shift_in_session['N'] else '' }}>Night</option>
+                                                        </select>
+                                                </div>
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-2 col-md-6 mb-2 mt-4 me-2 align-items-center">
+                                    <button class="btn btn-outline-dark m-4" type="submit">Submit</button>
+                                </div>
+                            </form>
+                        
+                        </div>
+
+                        <div class="row">     
+                            <button class="btn btn-primary refresh-btn m-1" onclick="refreshLinesData()">REFRESH</button>
+                        </div>
+
+
+                        <div class="row mt-4">
+
+                            {%for lineKey,lineValue in calculated_data.data.items() %}
+                                <div id="data-container" class="col-xl-6 col-lg-6">
+                                    <div class="card shadow h-30 py-1 mb-1">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text font-weight-bold text-primary text-uppercase mb-1">
+                                                        <div id="line_{{ lineKey }}"> <p>{{ lineKey }}</p>
+                                                            {%for stationKey,stationValue in lineValue.items()%}
+                                                                {%if stationValue[1] == 0 %}
+                                                                <div id="station_{{ lineKey }}_{{ stationKey }}_card" class="card bg-secondary text-white m-2 fit-content d-inline-block">
+                                                                {%elif 0 < stationValue[1] < 55 %}
+                                                                <div id="station_{{ lineKey }}_{{ stationKey }}_card" class="card bg-danger text-white m-2 fit-content d-inline-block">
+                                                                {%elif 55 <= stationValue[1] < 85%}
+                                                                <div id="station_{{ lineKey }}_{{ stationKey }}_card" class="card bg-warning text-white m-2 fit-content d-inline-block">
+                                                                {%elif stationValue[1] >= 85%}
+                                                                <div id="station_{{ lineKey }}_{{ stationKey }}_card" class="card bg-success text-white m-2 fit-content d-inline-block">
+                                                                {%endif%}
+                                                                    <a href="http://127.0.0.1:5000/dash?date={{session['date']}}&shift_name={{shift_name}}&station={{stationKey}}">
+                                                                    <div class="card-body station-title-text text-white" id="station_{{ lineKey }}_{{ stationKey }}">{{stationKey}}</div>
+                                                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                                                        <p class="small text-white stretched-link"><span id="station_{{ lineKey }}_{{ stationKey }}_per">{{stationValue[1]}}</span>% / 
+                                                                        <span id="station_{{ lineKey }}_{{ stationKey }}_tprod">{{stationValue[0]}}</span>Ps</p>
+                                                                    </div>
+                                                                    </a>
+                                                                </div>
+                                                                
+                                                            {%endfor%}
+                                                                
+                                                        </div>    
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            {%endfor%}
+                            
+                            
+                        </div>
+                    </div>
+                </main>
+                {% include 'footer.html' %}
+            </div>
+        </div>
+        
+    
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="static/js/scripts.js"></script>
+        
+        <!-- <script>
+            function refreshLinesData() {
+                $.ajax({
+                    url: "/get-processed-data/lines",  
+                    type: "GET",
+                    success: function(response) {
+                        $("#shift_in_session").text(response.shift_in_session);
+                        $("#station_in_session").text(response.station_in_session);
+                        $("#selected_date").text(response.selected_date);
+                        // $("#operator_name").text(response.operator_name);
+                        $("#shift_name").text(response.shift_name);
+                        $("#current_year").text(response.current_year);
+
+                        $.each(response.data, function(lineKey, lineValue) {
+                            // Ensure the line exists; if not, create it
+                            if ($("#line_" + lineKey).length === 0) {
+                                $("#data-container").append(`<div class="col-xl-6 col-lg-6">
+                                                                <div class="card shadow h-30 py-1 mb-1">
+                                                                    <div class="card-body">
+                                                                        <div class="row no-gutters align-items-center">
+                                                                            <div class="col mr-2">
+                                                                                <div class="text font-weight-bold text-primary text-uppercase mb-1">
+                                                                                    <div id="line_${lineKey}"> ${lineKey}
+                                                                                        
+                                                                                    </div>
+                                                                                
+                                                                                </div>
+
+                                                                                </div>
+                                                                                    
+                                                                            </div>
+                                                                            
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                                `);
+                            }
+                            
+                             // Convert stations object to array and sort by performance (stationValue[1])
+                            let sortedStations = Object.entries(lineValue).sort((a, b) => a[1][1] - b[1][1]);
+
+                            // Clear existing stations before adding sorted ones
+                            $("#line_" + lineKey).empty().append(`<p>${lineKey}</p>`);
+
+                            // Loop through stations inside each line
+                            // $.each(lineValue, function(stationKey, stationValue)
+                            sortedStations.forEach(([stationKey, stationValue]) => 
+                            {
+                                let stationId = `station_${lineKey}_${stationKey}`;
+                                let stationPerId = stationId + "_per";
+                                let stationTprodId = stationId + "_tprod";
+                                let stationTcardId = stationId + "_card";
+                                let performanceClass = "";
+                                if (stationValue[1] == 0) {
+                                    performanceClass = "bg-secondary text-white";  
+                                } else if (0 < stationValue[1] && stationValue[1] < 55) {
+                                    performanceClass = "bg-danger text-white"; 
+                                } else if (55 <= stationValue[1] && stationValue[1] < 85) {
+                                    performanceClass = "bg-warning text-white";
+                                } else if (stationValue[1] >= 85) {
+                                    performanceClass = "bg-success text-white";
+                                }
+                                // Check if the station already exists in the DOM
+                                if ($("#" + stationId).length === 0) {
+                                    // If station is new, append it to the line div
+                                    $("#line_" + lineKey).append(`
+                                                                <div id="${stationTcardId}" class="card m-2 fit-content ${performanceClass} d-inline-block">
+                                                                    <a href="http://127.0.0.1:5000/dash?date={{session['date']}}&shift_name={{shift_name}}&station=${stationKey}">
+                                                                    <div class="card-body station-title-text text-white" id="${stationId}">${stationKey}</div>
+                                                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                                                        <p class="small text-white stretched-link"> <span id="${stationPerId}"> ${stationValue[1]} </span> % / 
+                                                                        <span id="${stationTprodId}">${stationValue[0]}</span>Ps</p>
+                                                                    </div>
+                                                                    </a>
+                                                                </div>
+                                                                `);
+                                
+                                } else {
+                                    // If station already exists, update the values
+                                    $("#" + stationPerId).text(stationValue[1]);
+                                    $("#" + stationTprodId).text(stationValue[0]);
+                                     // Change the background color dynamically based on performance
+                                     let stationDiv = $("#" + stationTcardId);
+                                    // stationDiv.removeClass("bg-success bg-danger bg-secondary bg-warning").addClass(performanceClass);
+                                    stationDiv.attr("class", `card m-2 fit-content ${performanceClass} d-inline-block`);
+                                }
+                        });
+                        });
+                        
+
+
+                        // $.each(response.data, function(lineKey, lineValue) {
+                        //     // Update each line
+                        //     $("#line_" + lineKey).text(lineKey);
+                
+                        //     // Loop through lineValue inside each line
+                        //     $.each(lineValue, function(stationKey, stationValue) {
+                        //         $("#station_" + lineKey + "_" + stationKey).text(stationKey);
+                        //         $("#station_" + lineKey + "_" + stationKey + "_per").text(stationValue[1]);
+                        //         $("#station_" + lineKey + "_" + stationKey + "_tprod").text(stationValue[0]);
+                        //     });
+                        // });
+
+                    },
+                    error: function() {
+                        alert("Failed to fetch updated data.");
+                    }
+                });
+            }
+
+            // // Auto-refresh every 10 seconds
+            // setInterval(refreshData, 1000);
+        </script> -->
+    
+    
+    </body>
+</html>
+
