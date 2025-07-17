@@ -9,8 +9,13 @@ from dotenv import load_dotenv
 import os
 
 
-load_dotenv()
-db_pwd = os.getenv("DB_PWD")
+# load_dotenv()
+# db_pwd = os.getenv("DB_PWD")
+
+
+
+db_pwd = os.environ.get("DB_PWD")
+
 
 engine = create_engine(
     f"mysql+pymysql://doadmin:{db_pwd}@dataprod-do-user-2975072-0.j.db.ondigitalocean.com:25060/dataprod")
