@@ -35,9 +35,9 @@ app = Flask(__name__)
 # load the secret key for the session use/ need to move .env file to get ignore
 load_dotenv()
 # app.secret_key = os.getenv("SECRET_KEY")
-app.secret_key = os.environ.get("SECRET_KEY", "dev-key")
+app.secret_key = os.environ.get("SECRET_KEY")
 # db_pwd = os.getenv("DB_PWD")
-db_pwd = os.environ.get("DB_PWD", "dev-key")
+db_pwd = os.environ.get("DB_PWD")
 
 # # life time of a session
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=20)
