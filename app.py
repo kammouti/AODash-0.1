@@ -36,8 +36,8 @@ app = Flask(__name__)
 load_dotenv()
 # app.secret_key = os.getenv("SECRET_KEY")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-key")
-db_pwd = os.getenv("DB_PWD")
-
+# db_pwd = os.getenv("DB_PWD")
+db_pwd = os.environ.get("DB_PWD", "dev-key")
 
 # # life time of a session
 # app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=20)
@@ -757,6 +757,6 @@ def pointerinsert():
 
 
 
-if __name__ == "__main__":
-    # app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+# if __name__ == "__main__":
+#     # app.run(debug=True)
+#     app.run(host='0.0.0.0', port=5000, debug=True)
