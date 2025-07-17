@@ -572,7 +572,7 @@ def processed_data(needed_data):
     session["shift"] = selected_shift
     session["station"] = selected_station
 
-    url = "http://127.0.0.1:5000/api/get_lines_data"
+    url = "https://aodash-app-apjlj.ondigitalocean.app/api/get_lines_data"
     params = {
         "date": selected_date,
         "shift_name": selected_shift,
