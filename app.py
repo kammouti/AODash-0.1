@@ -30,11 +30,12 @@ SHIFT_SCHEDULE = {
 }
 
 app = Flask(__name__)
-app.url_map.strict_slashes = False
+
 
 # load the secret key for the session use/ need to move .env file to get ignore
 load_dotenv()
-app.secret_key = os.getenv("SECRET_KEY")
+# app.secret_key = os.getenv("SECRET_KEY")
+app.secret_key = os.environ.get("SECRET_KEY", "dev-key")
 db_pwd = os.getenv("DB_PWD")
 
 
